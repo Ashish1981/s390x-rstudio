@@ -1,4 +1,4 @@
-FROM docker.io/ashish1981/s390x-ubuntu-r-base
+FROM docker.io/$DOCKER_USERNAME/s390x-ubuntu-r-base
 
 ARG RSTUDIO_VERSION
 ENV RSTUDIO_VERSION=${RSTUDIO_VERSION:-1.2.5042}
@@ -28,9 +28,9 @@ RUN apt-get update \
     python-setuptools \
     sudo \
     wget \
-    && if [ -z "$RSTUDIO_VERSION" ]; \
-    then RSTUDIO_URL="https://www.rstudio.org/download/latest/stable/server/bionic/rstudio-server-latest-amd64.deb"; \
-    else RSTUDIO_URL="http://download2.rstudio.org/server/bionic/amd64/rstudio-server-${RSTUDIO_VERSION}-amd64.deb"; fi \
+    #&& if [ -z "$RSTUDIO_VERSION" ]; \
+     RSTUDIO_URL="https://www.rstudio.org/download/latest/stable/server/bionic/rstudio-server-latest-amd64.deb"; \
+    #else RSTUDIO_URL="http://download2.rstudio.org/server/bionic/amd64/rstudio-server-${RSTUDIO_VERSION}-amd64.deb"; fi \
     && wget -q $RSTUDIO_URL \
     && dpkg -i rstudio-server-*-amd64.deb \
     && rm rstudio-server-*-amd64.deb \
