@@ -54,7 +54,8 @@ RUN apt-get update && \
     uuid-dev \
     valgrind \
     wget \
-    zlib1g-dev
+    zlib1g-dev \
+    alien
 
 # ensure we use the java 8 compiler
 #RUN update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
@@ -73,3 +74,6 @@ RUN cd /tmp \
 COPY dependencies/common/install-boost /tmp/
 RUN bash /tmp/install-boost || bash /tmp/install-boost
 
+RUN cd tmp &&
+wget http://rpmfind.net/linux/fedora-secondary/development/rawhide/Everything/s390x/os/Packages/r/rstudio-server-1.3.959-2.fc33.s390x.rpm
+&& alien -i rstudio-server-1.3.959-2.fc33.s390x.rpm
