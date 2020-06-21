@@ -23,8 +23,8 @@ RUN apt-get update \
     libblas-dev \
     libbz2-1.0 \
     libcurl4 \
-    libicu63 \
-    libjpeg62-turbo \
+ #   libicu63 \
+ #   libjpeg62-turbo \
     libopenblas-dev \
     libpangocairo-1.0-0 \
     libpcre3 \
