@@ -27,7 +27,7 @@ RUN apt-get update --fix-missing && apt-get install -y --no-install-recommends \
 ARG PYTHON_VERSION=3.6.5
 
 # Install other Python PyPi packages
-RUN /opt/python/${PYTHON_VERSION}/bin/pip install --no-cache-dir \
+RUN pip install --no-cache-dir \
     pip==20.0.2 \
     jupyter==1.0.0 \
     jupyterlab==2.1.0 \
