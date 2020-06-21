@@ -14,11 +14,6 @@ RUN set -x \
     && echo 'deb http://cran.rstudio.com/bin/linux/ubuntu bionic-cran35/' >> /etc/apt/sources.list \
     && apt-get update
 
-# add ppa repository so we can install java 8 (not in any official repo for bionic)
-RUN apt-get update \
-    && apt-get install -y software-properties-common \
-    && add-apt-repository ppa:openjdk-r/ppa
-
 RUN apt-get update && \
     export DEBIAN_FRONTEND=noninteractive && \
     apt-get install -y \
@@ -78,32 +73,3 @@ RUN cd /tmp \
 COPY dependencies/common/install-boost /tmp/
 RUN bash /tmp/install-boost || bash /tmp/install-boost
 
-# set github login from build argument if defined
-ARG GITHUB_LOGIN
-ENV RSTUDIO_GITHUB_LOGIN=$GITHUB_LOGIN
-
-# install cmake
-COPY package/linux/install-dependencies /tmp/
-RUN /bin/bash /tmp/install-dependencies
-
-# install crashpad and its dependencies
-COPY dependencies/common/install-crashpad /tmp/
-RUN bash /tmp/install-crashpad bionic
-
-# copy common dependency installation scripts
-RUN mkdir -p /opt/rstudio-tools/dependencies/common
-COPY dependencies/common/ /opt/rstudio-tools/dependencies/common/
-
-# copy panmirror project setup (so install-common can install needed deps)
-RUN mkdir -p /opt/rstudio-tools/panmirror
-COPY src/gwt/panmirror/src/editor/yarn.lock /opt/rstudio-tools/panmirror/
-COPY src/gwt/panmirror/src/editor/package.json /opt/rstudio-tools/panmirror/
-
-# install common dependencies
-RUN cd /opt/rstudio-tools/dependencies/common && /bin/bash ./install-common
-
-# install Qt SDK
-COPY dependencies/common/install-qt.sh /tmp/
-COPY dependencies/linux/install-qt-linux /tmp/
-RUN export QT_VERSION=5.12.8 && \
-    cd /tmp && /bin/bash ./install-qt-linux
