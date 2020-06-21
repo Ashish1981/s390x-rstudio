@@ -85,8 +85,8 @@ RUN apt-get update \
     ## Clean up from R source install
     && cd / \
     && rm -rf /tmp/* \
-    && apt-get remove --purge -y $BUILDDEPS \
-    && apt-get autoremove -y \
+#    && apt-get remove --purge -y $BUILDDEPS \
+#    && apt-get autoremove -y \
     && apt-get autoclean -y \
     && rm -rf /var/lib/apt/lists/*
 
@@ -96,13 +96,13 @@ RUN apt-get update \
 #RUN update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
 
 ## build patchelf
-RUN cd /tmp \
-    && wget https://nixos.org/releases/patchelf/patchelf-0.9/patchelf-0.9.tar.gz \
-    && tar xzvf patchelf-0.9.tar.gz \
-    && cd patchelf-0.9 \
-    && ./configure \
-    && make \
-    && make install
+# RUN cd /tmp \
+#     && wget https://nixos.org/releases/patchelf/patchelf-0.9/patchelf-0.9.tar.gz \
+#     && tar xzvf patchelf-0.9.tar.gz \
+#     && cd patchelf-0.9 \
+#     && ./configure \
+#     && make \
+#     && make install
 
 RUN apt-get update --fix-missing && apt-get install -y --no-install-recommends \
     bzip2 \
@@ -221,4 +221,4 @@ RUN chmod +x /usr/local/bin/startup.sh
 COPY conf/* /etc/rstudio/
 
 ENTRYPOINT ["tini", "--"]
-CMD ["/usr/local/bin/startup.sh"]
+#CMD ["/usr/local/bin/startup.sh"]
