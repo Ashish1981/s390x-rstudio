@@ -29,7 +29,7 @@ RUN apt-get update \
     sudo \
     wget \
     #&& if [ -z "$RSTUDIO_VERSION" ]; \
-     RSTUDIO_URL="https://www.rstudio.org/download/latest/stable/server/bionic/rstudio-server-latest-amd64.deb"; \
+    && RSTUDIO_URL="https://www.rstudio.org/download/latest/stable/server/bionic/rstudio-server-latest-amd64.deb"; \
     #else RSTUDIO_URL="http://download2.rstudio.org/server/bionic/amd64/rstudio-server-${RSTUDIO_VERSION}-amd64.deb"; fi \
     && wget -q $RSTUDIO_URL \
     && dpkg -i rstudio-server-*-amd64.deb \
