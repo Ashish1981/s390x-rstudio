@@ -23,24 +23,6 @@ RUN apt-get update --fix-missing && apt-get install -y --no-install-recommends \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python  -------------------------------------------------------------#
-ARG PYTHON_VERSION=3.6.5
-
-# Install other Python PyPi packages
-RUN pip install --no-cache-dir \
-    pip==20.0.2 \
-    jupyter==1.0.0 \
-    jupyterlab==2.1.0 \
-    rsp_jupyter==1.2.5003 \
-    rsconnect_jupyter==1.3.3.1
-
-# Install Jupyter extensions
-RUN /opt/python/${PYTHON_VERSION}/bin/jupyter-nbextension install --sys-prefix --py rsp_jupyter && \
-    /opt/python/${PYTHON_VERSION}/bin/jupyter-nbextension enable --sys-prefix --py rsp_jupyter && \
-    /opt/python/${PYTHON_VERSION}/bin/jupyter-nbextension install --sys-prefix --py rsconnect_jupyter && \
-    /opt/python/${PYTHON_VERSION}/bin/jupyter-nbextension enable --sys-prefix --py rsconnect_jupyter && \
-    /opt/python/${PYTHON_VERSION}/bin/jupyter-serverextension enable --sys-prefix --py rsconnect_jupyter
-
 # Runtime settings ------------------------------------------------------------#
 ARG TINI_VERSION=0.18.0
 RUN curl -L -o /usr/local/bin/tini https://github.com/krallin/tini/releases/download/v${TINI_VERSION}/tini && \
