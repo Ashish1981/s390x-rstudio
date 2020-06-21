@@ -53,7 +53,7 @@ RUN apt-get update && \
     p7zip-full \
     pkg-config \
     python \
-    r-base \
+#    r-base \
     sudo \
     unzip \
     uuid-dev \
@@ -62,7 +62,7 @@ RUN apt-get update && \
     zlib1g-dev
 
 # ensure we use the java 8 compiler
-RUN update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
+#RUN update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
 
 ## build patchelf
 RUN cd /tmp \
