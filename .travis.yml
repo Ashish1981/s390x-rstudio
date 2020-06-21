@@ -13,6 +13,7 @@ deploy:
   provider: script
   script: 
     docker push "$DOCKER_USERNAME"/s390x-rstudio:$TRAVIS_BUILD_NUMBER
+  script:   
     docker push "$DOCKER_USERNAME"/s390x-rstudio:latest
   on:
     branch: master  
