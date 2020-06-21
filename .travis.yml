@@ -5,13 +5,13 @@ services:
 script: docker build -t s390x-rstudio -f Dockerfile .
 
 before_deploy:
-    - docker tag  s390x-rstudio  "$DOCKER_USERNAME"/s390x-rstudio:"%{build_number}"
+    - docker tag  s390x-rstudio  "$DOCKER_USERNAME"/s390x-rstudio:$TRAVIS_BUILD_NUMBER
     - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin  
 
 deploy:
   provider: script
   script: 
-     docker push "$DOCKER_USERNAME"/s390x-rstudio:latest
+     docker push "$DOCKER_USERNAME"/s390x-rstudio:$TRAVIS_BUILD_NUMBER
   on:
     branch: master  
 
