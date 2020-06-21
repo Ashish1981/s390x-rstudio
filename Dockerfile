@@ -46,8 +46,9 @@ RUN chmod +x /usr/local/bin/startup.sh
 COPY conf/* /etc/rstudio/
 
 # Create log dir
-RUN mkdir -p /var/lib/rstudio-server/monitor/log && \
-    chown -R rstudio-server:rstudio-server /var/lib/rstudio-server/monitor
+RUN mkdir -p /var/lib/rstudio-server/monitor/log 
+#&& \
+#    chown -R rstudio-server:rstudio-server /var/lib/rstudio-server/monitor
 
 EXPOSE 8787/tcp
 EXPOSE 5559/tcp
