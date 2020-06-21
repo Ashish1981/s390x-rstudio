@@ -181,29 +181,29 @@ RUN curl -L -o /usr/local/bin/tini https://github.com/krallin/tini/releases/down
 RUN curl -L -o /usr/local/bin/wait-for-it.sh https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh && \
     chmod +x /usr/local/bin/wait-for-it.sh
 
-# Install Python  -------------------------------------------------------------#
-ARG PYTHON_VERSION=3.6.5
-RUN curl -o /tmp/miniconda.sh https://repo.anaconda.com/miniconda/Miniconda3-4.5.4-Linux-x86_64.sh && \
-    /bin/bash /tmp/miniconda.sh -b -p /opt/python/${PYTHON_VERSION} && \
-    rm /tmp/miniconda.sh && \
-    /opt/python/${PYTHON_VERSION}/bin/conda clean -tipsy && \
-    /opt/python/${PYTHON_VERSION}/bin/conda clean -a && \
-    /opt/python/${PYTHON_VERSION}/bin/pip install virtualenv
+# # Install Python  -------------------------------------------------------------#
+# ARG PYTHON_VERSION=3.6.5
+# RUN curl -o /tmp/miniconda.sh https://repo.anaconda.com/miniconda/Miniconda3-4.5.4-Linux-x86_64.sh && \
+#     /bin/bash /tmp/miniconda.sh -b -p /opt/python/${PYTHON_VERSION} && \
+#     rm /tmp/miniconda.sh && \
+#     /opt/python/${PYTHON_VERSION}/bin/conda clean -tipsy && \
+#     /opt/python/${PYTHON_VERSION}/bin/conda clean -a && \
+#     /opt/python/${PYTHON_VERSION}/bin/pip install virtualenv
 
-# Install other Python PyPi packages
-RUN /opt/python/${PYTHON_VERSION}/bin/pip install --no-cache-dir \
-    pip==20.0.2 \
-    jupyter==1.0.0 \
-    jupyterlab==2.1.0 \
-    rsp_jupyter==1.2.5003 \
-    rsconnect_jupyter==1.3.3.1
+# # Install other Python PyPi packages
+# RUN /opt/python/${PYTHON_VERSION}/bin/pip install --no-cache-dir \
+#     pip==20.0.2 \
+#     jupyter==1.0.0 \
+#     jupyterlab==2.1.0 \
+#     rsp_jupyter==1.2.5003 \
+#     rsconnect_jupyter==1.3.3.1
 
-# Install Jupyter extensions
-RUN /opt/python/${PYTHON_VERSION}/bin/jupyter-nbextension install --sys-prefix --py rsp_jupyter && \
-    /opt/python/${PYTHON_VERSION}/bin/jupyter-nbextension enable --sys-prefix --py rsp_jupyter && \
-    /opt/python/${PYTHON_VERSION}/bin/jupyter-nbextension install --sys-prefix --py rsconnect_jupyter && \
-    /opt/python/${PYTHON_VERSION}/bin/jupyter-nbextension enable --sys-prefix --py rsconnect_jupyter && \
-    /opt/python/${PYTHON_VERSION}/bin/jupyter-serverextension enable --sys-prefix --py rsconnect_jupyter
+# # Install Jupyter extensions
+# RUN /opt/python/${PYTHON_VERSION}/bin/jupyter-nbextension install --sys-prefix --py rsp_jupyter && \
+#     /opt/python/${PYTHON_VERSION}/bin/jupyter-nbextension enable --sys-prefix --py rsp_jupyter && \
+#     /opt/python/${PYTHON_VERSION}/bin/jupyter-nbextension install --sys-prefix --py rsconnect_jupyter && \
+#     /opt/python/${PYTHON_VERSION}/bin/jupyter-nbextension enable --sys-prefix --py rsconnect_jupyter && \
+#     /opt/python/${PYTHON_VERSION}/bin/jupyter-serverextension enable --sys-prefix --py rsconnect_jupyter
 
 
 ## run install-boost twice - boost exits 1 even though it has installed good enough for our uses.
