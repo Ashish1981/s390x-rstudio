@@ -1,4 +1,4 @@
-FROM docker.io/ashish1981/s390x-rstudio
+FROM docker.io/ashish1981/s390x-rstudio:onlystudio
 
 ARG RSTUDIO_VERSION
 ENV RSTUDIO_VERSION=${RSTUDIO_VERSION:-1.2.5042}
