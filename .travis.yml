@@ -1,0 +1,29 @@
+arch: s390x
+services:
+  - docker
+
+script: docker build -t s390x-rstudio -f Dockerfile .
+
+before_deploy:
+    - docker tag  s390x-rstudio  "$DOCKER_USERNAME"/s390x-rstudio:latest
+    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin  
+
+deploy:
+  provider: script
+  script: 
+     docker push "$DOCKER_USERNAME"/s390x-rstudio:latest
+  on:
+    branch: master  
+
+notifications:
+  slack: 
+    rooms:
+    - gbs-cai:8YOiAOuRbt0a2y5He5gkLfWb
+    template:
+        - "Build <%{build_url}|#%{build_number}> (<%{compare_url}|%{commit}>) of %{repository_slug}@%{branch} by %{author} %{result} in %{duration} :greatsuccess: :success-7318:"  
+        - "Build <%{build_url}|#%{build_number}> (<%{compare_url}|%{commit}>) of %{repository_slug}@%{branch} in PR <%{pull_request_url}|#%{pull_request_number}> by %{author} %{result} in %{duration}"
+    on_success: change # default: always
+    on_failure: never  # default: always
+    on_start:   change # default: never
+    on_cancel:  always # default: always
+    on_error:   never  # default: always
