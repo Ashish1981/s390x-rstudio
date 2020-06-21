@@ -74,6 +74,6 @@ RUN cd /tmp \
 COPY dependencies/common/install-boost /tmp/
 RUN bash /tmp/install-boost || bash /tmp/install-boost
 
-RUN cd tmp &&
-wget http://rpmfind.net/linux/fedora-secondary/development/rawhide/Everything/s390x/os/Packages/r/rstudio-server-1.3.959-2.fc33.s390x.rpm
+RUN cd /tmp && \ 
+wget http://rpmfind.net/linux/fedora-secondary/development/rawhide/Everything/s390x/os/Packages/r/rstudio-server-1.3.959-2.fc33.s390x.rpm \
 && alien -i rstudio-server-1.3.959-2.fc33.s390x.rpm
