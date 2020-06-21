@@ -1,79 +1,78 @@
-FROM docker.io/ashish1981/s390x-ubuntu-r-base
+FROM docker.io/ashish1981/s390x-rstudio
 
-ENV OPERATING_SYSTEM=ubuntu_bionic
+ARG RSTUDIO_VERSION
+ENV RSTUDIO_VERSION=${RSTUDIO_VERSION:-1.2.5042}
+ARG S6_VERSION
+ARG PANDOC_TEMPLATES_VERSION
+ENV S6_VERSION=${S6_VERSION:-v1.21.7.0}
+ENV S6_BEHAVIOUR_IF_STAGE2_FAILS=2
+ENV PATH=/usr/lib/rstudio-server/bin:$PATH
+ENV PANDOC_TEMPLATES_VERSION=${PANDOC_TEMPLATES_VERSION:-2.9}
 
-ARG AWS_REGION=us-east-1
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+    ## Symlink pandoc & standard pandoc templates for use system-wide
+    && ln -s /usr/lib/rstudio-server/bin/pandoc/pandoc /usr/local/bin \
+    && ln -s /usr/lib/rstudio-server/bin/pandoc/pandoc-citeproc /usr/local/bin \
+    && git clone --recursive --branch ${PANDOC_TEMPLATES_VERSION} https://github.com/jgm/pandoc-templates \
+    && mkdir -p /opt/pandoc/templates \
+    && cp -r pandoc-templates*/* /opt/pandoc/templates && rm -rf pandoc-templates* \
+    && mkdir /root/.pandoc && ln -s /opt/pandoc/templates /root/.pandoc/templates \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/ \
+    ## RStudio wants an /etc/R, will populate from $R_HOME/etc
+    && mkdir -p /etc/R \
+    ## Write config files in $R_HOME/etc
+    && echo '\n\
+    \n# Configure httr to perform out-of-band authentication if HTTR_LOCALHOST \
+    \n# is not set since a redirect to localhost may not work depending upon \
+    \n# where this Docker container is running. \
+    \nif(is.na(Sys.getenv("HTTR_LOCALHOST", unset=NA))) { \
+    \n  options(httr_oob_default = TRUE) \
+    \n}' >> /usr/local/lib/R/etc/Rprofile.site \
+    && echo "PATH=${PATH}" >> /usr/local/lib/R/etc/Renviron \
+    ## Need to configure non-root user for RStudio
+    && useradd rstudio \
+    && echo "rstudio:rstudio" | chpasswd \
+    && mkdir /home/rstudio \
+    && chown rstudio:rstudio /home/rstudio \
+    && addgroup rstudio staff \
+    ## Prevent rstudio from deciding to use /usr/bin/R if a user apt-get installs a package
+    &&  echo 'rsession-which-r=/usr/local/bin/R' >> /etc/rstudio/rserver.conf \
+    ## use more robust file locking to avoid errors when using shared volumes:
+    && echo 'lock-type=advisory' >> /etc/rstudio/file-locks \
+    ## configure git not to request password each time
+    && git config --system credential.helper 'cache --timeout=3600' \
+    && git config --system push.default simple \
+    ## Set up S6 init system
+    && wget -P /tmp/ https://github.com/just-containers/s6-overlay/releases/download/${S6_VERSION}/s6-overlay-amd64.tar.gz \
+    && tar xzf /tmp/s6-overlay-amd64.tar.gz -C / \
+    && mkdir -p /etc/services.d/rstudio \
+    && echo '#!/usr/bin/with-contenv bash \
+    \n## load /etc/environment vars first: \
+    \n for line in $( cat /etc/environment ) ; do export $line ; done \
+    \n exec /usr/lib/rstudio-server/bin/rserver --server-daemonize 0' \
+    > /etc/services.d/rstudio/run \
+    && echo '#!/bin/bash \
+    \n rstudio-server stop' \
+    > /etc/services.d/rstudio/finish \
+    && mkdir -p /home/rstudio/.rstudio/monitored/user-settings \
+    && echo 'alwaysSaveHistory="0" \
+    \nloadRData="0" \
+    \nsaveAction="0"' \
+    > /home/rstudio/.rstudio/monitored/user-settings/user-settings \
+    && chown -R rstudio:rstudio /home/rstudio/.rstudio
 
-# install needed packages. replace httpredir apt source with cloudfront
-RUN set -x \
-    && sed -i "s/archive.ubuntu.com/$AWS_REGION.ec2.archive.ubuntu.com/" /etc/apt/sources.list \
-    && export DEBIAN_FRONTEND=noninteractive \
-    && apt-get update \
-    && apt-get install -y gnupg1 \
-    && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 0x51716619e084dab9 \
-    && echo 'deb http://cran.rstudio.com/bin/linux/ubuntu bionic-cran35/' >> /etc/apt/sources.list \
-    && apt-get update
+COPY userconf.sh /etc/cont-init.d/userconf
 
-RUN apt-get update && \
-    export DEBIAN_FRONTEND=noninteractive && \
-    apt-get install -y \
-    ant \
-    build-essential \
-    clang \
-    curl \
-    debsigs \
-    dpkg-sig \
-    expect \
-    fakeroot \
-    git-core \
-    libattr1-dev \
-    libacl1-dev \
-    libbz2-dev \
-    libcap-dev \
-    libcurl4-openssl-dev \
-    libfuse2 \
-    libgtk-3-0 \
-    libgl1-mesa-dev \
-    libegl1-mesa \
-    libpam-dev \
-    libpango1.0-dev \
-    libpq-dev \
-    libsqlite3-dev \
-    libuser1-dev \
-    libssl-dev \
-    libxml2-dev \
-    libxslt1-dev \
-    lsof \
-    openjdk-8-jdk \
-    p7zip-full \
-    pkg-config \
-    python \
-#    r-base \
-    sudo \
-    unzip \
-    uuid-dev \
-    valgrind \
-    wget \
-    zlib1g-dev \
-    alien
+## running with "-e ADD=shiny" adds shiny server
+COPY add_shiny.sh /etc/cont-init.d/add
+COPY disable_auth_rserver.conf /etc/rstudio/disable_auth_rserver.conf
+COPY pam-helper.sh /usr/lib/rstudio-server/bin/pam-helper
 
-# ensure we use the java 8 compiler
-#RUN update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
+EXPOSE 8787
 
-## build patchelf
-RUN cd /tmp \
-    && wget https://nixos.org/releases/patchelf/patchelf-0.9/patchelf-0.9.tar.gz \
-    && tar xzvf patchelf-0.9.tar.gz \
-    && cd patchelf-0.9 \
-    && ./configure \
-    && make \
-    && make install
+## automatically link a shared volume for kitematic users
+VOLUME /home/rstudio/kitematic
 
-## run install-boost twice - boost exits 1 even though it has installed good enough for our uses.
-## https://github.com/rstudio/rstudio/blob/master/vagrant/provision-primary-user.sh#L12-L15
-COPY dependencies/common/install-boost /tmp/
-RUN bash /tmp/install-boost || bash /tmp/install-boost
-
-RUN cd /tmp && \ 
-wget http://rpmfind.net/linux/fedora-secondary/development/rawhide/Everything/s390x/os/Packages/r/rstudio-server-1.3.959-2.fc33.s390x.rpm \
-&& alien -i rstudio-server-1.3.959-2.fc33.s390x.rpm
+CMD ["/init"]    
