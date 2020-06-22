@@ -25,10 +25,10 @@ RUN apt-get update -qq && \
     wget && \
     rm -rf /var/lib/apt/lists/*
 
-# Install TinyTeX
-RUN wget -qO- "https://yihui.name/gh/tinytex/tools/install-unx.sh" | sh -s - --admin --no-path && \
-    mv ~/.TinyTeX /opt/TinyTeX && \
-    /opt/TinyTeX/bin/*/tlmgr path add
+# # Install TinyTeX
+# RUN wget -qO- "https://yihui.name/gh/tinytex/tools/install-unx.sh" | sh -s - --admin --no-path && \
+#     mv ~/.TinyTeX /opt/TinyTeX && \
+#     /opt/TinyTeX/bin/*/tlmgr path add
 
 # Install pandoc
 RUN mkdir -p /opt/pandoc && \
@@ -132,13 +132,13 @@ RUN apt-get update \
 #RUN update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
 
 ## build patchelf
-# RUN cd /tmp \
-#     && wget https://nixos.org/releases/patchelf/patchelf-0.9/patchelf-0.9.tar.gz \
-#     && tar xzvf patchelf-0.9.tar.gz \
-#     && cd patchelf-0.9 \
-#     && ./configure \
-#     && make \
-#     && make install
+RUN cd /tmp \
+    && wget https://nixos.org/releases/patchelf/patchelf-0.9/patchelf-0.9.tar.gz \
+    && tar xzvf patchelf-0.9.tar.gz \
+    && cd patchelf-0.9 \
+    && ./configure \
+    && make \
+    && make install
 
 RUN apt-get update --fix-missing && apt-get install -y --no-install-recommends \
     bzip2 \
@@ -244,8 +244,8 @@ RUN curl -L -o /usr/local/bin/wait-for-it.sh https://raw.githubusercontent.com/v
 
 ## run install-boost twice - boost exits 1 even though it has installed good enough for our uses.
 ## https://github.com/rstudio/rstudio/blob/master/vagrant/provision-primary-user.sh#L12-L15
-#COPY dependencies/common/install-boost /tmp/
-#RUN bash /tmp/install-boost || bash /tmp/install-boost
+COPY dependencies/common/install-boost /tmp/
+RUN bash /tmp/install-boost || bash /tmp/install-boost
 
 RUN cd /tmp && \ 
 wget http://rpmfind.net/linux/fedora-secondary/development/rawhide/Everything/s390x/os/Packages/r/rstudio-server-1.3.959-2.fc33.s390x.rpm \
